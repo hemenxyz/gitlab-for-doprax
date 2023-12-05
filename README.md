@@ -37,14 +37,9 @@ The playbook is configured with the following default settings:
 
 For support, suggestions, or issues, please use the issue tracker in this repository. Contributions to improve the playbook are welcomed through pull requests.
 
-## License
 
-This project is licensed under [LICENSE_NAME]. See the `LICENSE` file for more details.
 
 ## Disclaimer
 
 This playbook is provided "as is". We strive for reliability, but cannot guarantee its suitability for all environments. It is recommended to familiarize yourself with the configuration and adjust as necessary for your specific needs.
 
----
-
-*Note: This README is intended to provide guidance on using the automated GitLab installation feature in Doprax. Ensure to replace any placeholder texts like `[LICENSE_NAME]` with actual information relevant to your project.*
