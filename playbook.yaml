@@ -1,0 +1,69 @@
+---
+- name: Install and Configure GitLab using Docker
+  hosts: all
+  become: yes
+
+  vars:
+    gitlab_domain: "{{ gitlab_domain | default('gitlab.example.com') }}"
+    gitlab_external_url: "http://{{ gitlab_domain }}"
+    gitlab_root_password: "{{ gitlab_root_password | default('ChangeMe123!') }}"
+
+  tasks:
+    - name: Install prerequisites for Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+        update_cache: yes
+      when: ansible_facts.packages['docker-ce'] is not defined
+
+    - name: Add Docker’s official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker Engine
+      apt:
+        name: docker-ce
+        update_cache: yes
+        state: latest
+      when: ansible_facts.packages['docker-ce'] is not defined
+
+    - name: Pull GitLab Docker image
+      docker_image:
+        name: gitlab/gitlab-ce
+        source: pull
+      when: "'gitlab' not in docker_container_facts.containers"
+
+    - name: Create and start GitLab container
+      docker_container:
+        name: gitlab
+        image: gitlab/gitlab-ce
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+          - "443:443"
+          - "22:22"
+        env:
+          GITLAB_OMNIBUS_CONFIG: |
+            external_url '{{ gitlab_external_url }}'
+            gitlab_rails['initial_root_password'] = '{{ gitlab_root_password }}'
+      when: "'gitlab' not in docker_container_facts.containers"
+
+    - name: Wait for GitLab to be up and running
+      uri:
+        url: "{{ gitlab_external_url }}"
+        status_code: 200
+        timeout: 10
+        retries: 5
+        delay: 10
+      when: "'gitlab' in docker_container_facts.containers"
