@@ -26,6 +26,14 @@
       pip:
         name: docker
         state: present
+        
+    - name: Ensure gitlab_home directory exists
+      file:
+        path: "{{ gitlab_home }}"
+        state: directory
+        owner: root  # You can change the owner and group as needed
+        group: root
+        mode: '0755'
 
     - name: Pull GitLab Docker image
       docker_image:
