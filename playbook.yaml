@@ -9,7 +9,7 @@
     gitlab_root_password: "{{ gitlab_root_password | default('ChangeMe123!') }}"
 
   tasks:
-    - name: Install prerequisites for Docker
+    - name: Install general prerequisites
       apt:
         name:
           - apt-transport-https
@@ -17,6 +17,8 @@
           - curl
           - gnupg-agent
           - software-properties-common
+          - python3
+          - python3-pip
         update_cache: yes
       when: ansible_facts.packages['docker-ce'] is not defined
 
