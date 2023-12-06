@@ -52,7 +52,7 @@
         restart_policy: always
         hostname: "{{ gitlab_domain }}"
         env:
-          GITLAB_OMNIBUS_CONFIG: "external_url '{{ gitlab_external_url }}'"
+          GITLAB_OMNIBUS_CONFIG: "external_url '{{ gitlab_doman }}'"
         ports:
           - "8080:80"
           - "8443:443"
