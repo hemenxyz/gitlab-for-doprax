@@ -5,7 +5,7 @@
 
   vars:
     gitlab_domain: "{{ gitlab_domain | default('localhost') }}"
-    gitlab_external_url: "https://{{ gitlab_domain }}"
+    gitlab_external_url: "{{ gitlab_domain }}"
     gitlab_home: "/gitlab"  # Update this path
 
   tasks:
