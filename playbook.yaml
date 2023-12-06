@@ -79,9 +79,7 @@
           - "{{ gitlab_home }}/gitlab-runner:/etc/gitlab-runner"
         networks:
           - name: gitlab-network
-        depends_on:
-          - web
-
+        
     - name: Wait for GitLab to be up and running
       uri:
         url: "{{ gitlab_external_url }}"
