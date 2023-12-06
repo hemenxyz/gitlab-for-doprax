@@ -41,7 +41,6 @@
       pip:
         name: docker
         state: present
-      when: ansible_facts.packages['docker'] is defined
       
     - name: Pull GitLab Docker image
       docker_image:
