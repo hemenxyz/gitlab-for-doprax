@@ -6,7 +6,7 @@
   vars:
     gitlab_domain: "{{ gitlab_domain | default('localhost') }}"
     gitlab_external_url: "https://{{ gitlab_domain }}"
-    gitlab_home: "{{ gitlab_home | default('/gitlab') }}"  # Update this path
+    gitlab_home: "/gitlab"  # Update this path
 
   tasks:
     - name: Install general prerequisites
