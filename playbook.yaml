@@ -58,7 +58,7 @@
         ports:
           - "80:80"
           - "443:443"
-          - "22:22"
+          - "2222:22"
         env:
           GITLAB_OMNIBUS_CONFIG: |
             external_url '{{ gitlab_external_url }}'
