@@ -6,7 +6,7 @@
   vars:
     gitlab_domain: "{{ gitlab_domain | default('gitlab.example.com') }}"
     gitlab_external_url: "http://{{ gitlab_domain }}"
-    gitlab_root_password: "{{ gitlab_root_password | default('ChangeMe123!') }}"
+    gitlab_root_password: test123123@@TEST
 
   tasks:
     - name: Install general prerequisites
