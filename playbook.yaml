@@ -4,9 +4,9 @@
   become: yes
 
   vars:
-    gitlab_domain: "{{ gitlab_domain | default('gitlab.example.com') }}"
-    gitlab_external_url: "https://{{ gitlab_domain }}"
-    gitlab_root_password: test123123@@TEST
+    gitlab_domain: "{{ gitlab_domain | default('localhost') }}"
+    gitlab_external_url: "http://{{ gitlab_domain }}"
+    gitlab_home: "{{ gitlab_home | default('/path/to/gitlab/home') }}"  # Update this path
 
   tasks:
     - name: Install general prerequisites
@@ -22,54 +22,63 @@
         update_cache: yes
       when: ansible_facts.packages['docker-ce'] is not defined
 
-    - name: Add Docker’s official GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-        state: present
-
-    - name: Install Docker Engine
-      apt:
-        name: docker-ce
-        update_cache: yes
-        state: latest
-      when: ansible_facts.packages['docker-ce'] is not defined
-      
     - name: Ensure Python Docker SDK is installed
       pip:
         name: docker
         state: present
-      
+
     - name: Pull GitLab Docker image
       docker_image:
-        name: gitlab/gitlab-ce
+        name: gitlab/gitlab-ce:latest
         source: pull
+
+    - name: Create GitLab network
+      docker_network:
+        name: gitlab-network
 
     - name: Create and start GitLab container
       docker_container:
-        name: gitlab
-        image: gitlab/gitlab-ce
+        name: gitlab-ce
+        image: gitlab/gitlab-ce:latest
         state: started
         restart_policy: always
-        ports:
-          - "80:80"
-          - "443:443"
-          - "2222:22"
+        hostname: "{{ gitlab_domain }}"
         env:
-          GITLAB_OMNIBUS_CONFIG: |
-            external_url '{{ gitlab_external_url }}'
-            gitlab_rails['initial_root_password'] = '{{ gitlab_root_password }}'
+          GITLAB_OMNIBUS_CONFIG: "external_url '{{ gitlab_external_url }}'"
+        ports:
+          - "8080:80"
+          - "8443:443"
+        volumes:
+          - "{{ gitlab_home }}/config:/etc/gitlab"
+          - "{{ gitlab_home }}/logs:/var/log/gitlab"
+          - "{{ gitlab_home }}/data:/var/opt/gitlab"
+        networks:
+          - name: gitlab-network
+
+    - name: Pull GitLab Runner Docker image
+      docker_image:
+        name: gitlab/gitlab-runner:alpine
+        source: pull
+
+    - name: Create and start GitLab Runner container
+      docker_container:
+        name: gitlab-runner
+        image: gitlab/gitlab-runner:alpine
+        state: started
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - "{{ gitlab_home }}/gitlab-runner:/etc/gitlab-runner"
+        networks:
+          - name: gitlab-network
+        depends_on:
+          - web
 
     - name: Wait for GitLab to be up and running
       uri:
         url: "{{ gitlab_external_url }}"
         status_code: 200
         timeout: 10
-        validate_certs: no
       register: result
       until: result.status == 200
       retries: 5
