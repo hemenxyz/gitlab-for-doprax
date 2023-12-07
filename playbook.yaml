@@ -96,16 +96,17 @@
           - "{{ gitlab_home }}/gitlab-runner:/etc/gitlab-runner"
         networks:
           - name: gitlab-network
-
+    
     - name: Retrieve GitLab initial root password
-      docker_container_exec:
-        container: gitlab-ce
-        command: cat /etc/gitlab/initial_root_password
+      command: docker exec gitlab-ce cat /etc/gitlab/initial_root_password
       register: gitlab_password
     
     - name: Log GitLab initial root password
       debug:
-        msg: "{{ gitlab_password.stdout_lines }}"
+        var: gitlab_password.stdout
+
+
+    
     - name: Wait for GitLab Initilization to finish
       uri:
         url: "{{ gitlab_external_url }}"
