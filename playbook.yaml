@@ -107,10 +107,10 @@
 
     - name: This is your initial root password 
       debug:
-        msg: "Change your root password on first login"
+        IMPORTANT: "{{ gitlab_password.stdout }} Change your root password on first login"
 
     - name: Gitlab startup initialization 
       debug:
-        msg: "Gitlab is doing it's first startup initialization. This may take several minutes depending your machine's processing power. You can visit https://{{gitlab_external_url}} after initialization to login to GitLab"
+        msg: "Gitlab is doing it's first startup initialization. This may take several minutes depending your machine's processing power. You can visit {{gitlab_external_url}} after initialization to login to GitLab"
 
     
