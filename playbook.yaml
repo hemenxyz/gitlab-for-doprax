@@ -98,21 +98,19 @@
           - name: gitlab-network
     
     - name: Retrieve GitLab initial root password
-      command: docker exec gitlab-ce cat /etc/gitlab/initial_root_password
+      command: docker exec gitlab-ce grep 'Password:' /etc/gitlab/initial_root_password
       register: gitlab_password
     
     - name: Log GitLab initial root password
       debug:
         var: gitlab_password.stdout
 
+    - name: This is your initial root password 
+      debug:
+        msg: "Change your root password on first login"
+
+    - name: Gitlab startup initialization 
+      debug:
+        msg: "Gitlab is doing it's first startup initialization. This may take several minutes depending your machine's processing power. You can visit https://{{gitlab_external_url}} after initialization to login to GitLab"
 
     
-    - name: Wait for GitLab Initilization to finish
-      uri:
-        url: "{{ gitlab_external_url }}"
-        status_code: 200
-        timeout: 10
-      register: result
-      until: result.status == 200
-      retries: 10
-      delay: 60
